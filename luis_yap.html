@@ -1,0 +1,685 @@
+<html>
+	<head>
+		<title>The Grand Piano - GRAPHIX Project by Mariel Luis and Mike Jaren Yap</title>
+		<style>
+			body{
+				margin: 0;
+				/*background: linear-gradient(#f5f7fa, #c3cfe2);*/
+                background-color: black;
+                background-image: url('images/classical-music-37-widescreen-wallpaper.jpg');
+                background-size: cover;
+                background-attachment: fixed;
+                background-repeat: no-repeat;
+                overflow: hidden;
+			}
+
+			.note{
+				width: 4em;
+				opacity: 0;
+				position: absolute;
+				z-index: 0;
+				left: 20%;
+				top: 50%;
+				animation: none;
+			}
+
+			#note-1{
+				top: 33%;
+				left: 75%;
+			}
+
+			#note-2{
+				top: 47%;
+				left: 9%;
+			}
+
+			#note-3{
+				top: 83%;
+				left: 56%;
+			}
+
+			#note-4{
+				top: 25%;
+				left: 88%;
+			}
+
+			#note-5{
+				top: 93%;
+				left: 20%;
+			}
+
+			#note-6{
+				top: 42%;
+				left: 31%;
+			}
+
+			#note-7{
+				top: 67%;
+				left: 74%;
+			}
+
+			#note-8{
+				top: 95%;
+				left: 48%;
+			}
+
+			@keyframes note-animation{
+				from{
+					opacity: 0;
+				}
+
+				to{
+					opacity: 0.5;
+					top: 15%;
+				}
+			}
+
+			canvas { width: 100%; height: 100%; }
+		</style>
+	</head>
+	<body onkeypress="interactionCheck()">
+		<script src="js/three.js"></script>
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/orbitControls.js"></script>
+		<audio id="key0">
+			<source src="audio/C3.mp3" type="audio/mpeg">
+		</audio>
+		<audio id="key1">
+			<source src="audio/Db3.mp3" type="audio/mpeg">
+		</audio>
+        
+        <audio id="key2">
+            <source src="audio/D3.mp3" type="audio/mpeg">
+        </audio>
+        
+        <audio id="key3">
+            <source src="audio/Eb3.mp3" type="audio/mpeg">
+        </audio>
+        
+        <audio id="key4">
+            <source src="audio/E3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key5">
+            <source src="audio/F3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key6">
+            <source src="audio/Gb3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key7">
+            <source src="audio/G3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key8">
+            <source src="audio/Ab3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key9">
+            <source src="audio/A3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key10">
+            <source src="audio/Bb3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key11">
+            <source src="audio/B3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key12">
+            <source src="audio/C4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key13">
+            <source src="audio/Db4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key14">
+            <source src="audio/D4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key15">
+            <source src="audio/Eb4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key16">
+            <source src="audio/E4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key17">
+            <source src="audio/F4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key18">
+            <source src="audio/Gb4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key19">
+            <source src="audio/G4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key20">
+            <source src="audio/Ab4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key21">
+            <source src="audio/A4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="key22">
+            <source src="audio/Bb4.mp3" type="audio/mpeg">
+        </audio>
+        
+        <audio id="key23">
+            <source src="audio/B4.mp3" type="audio/mpeg">
+        </audio>
+       
+		<img src="images/musical-note.svg" class="note" id="note-1" />
+		<img src="images/musical-note.svg" class="note" id="note-2" />
+		<img src="images/musical-note.svg" class="note" id="note-3" />
+		<img src="images/musical-note.svg" class="note" id="note-4" />
+		<img src="images/musical-note.svg" class="note" id="note-5" />
+		<img src="images/musical-note.svg" class="note" id="note-6" />
+		<img src="images/musical-note.svg" class="note" id="note-7" />
+		<img src="images/musical-note.svg" class="note" id="note-8" />
+		<script>
+			// the scene and camera
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+            var grandGroup = new THREE.Group();
+
+			// the renderer setup
+			var renderer = new THREE.WebGLRenderer({alpha: true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor(0x000000, 0);
+			renderer.setPixelRatio(window.devicePixelRatio);
+
+			document.body.appendChild( renderer.domElement );
+            camera.position.z = 150;
+
+            var light = new THREE.AmbientLight(0xffffff, 0);
+            //scene.add(light);
+
+            var pointLight = new THREE.PointLight(0xffffff, 0.1);
+            pointLight.position.set(0, 100, 20);
+			pointLight.castShadow = true;
+            scene.add(pointLight);
+            
+            var spotLight = new THREE.SpotLight(0xffffff, 1, 200, 0.79, 0.05, 2);
+            //spotLight.position.set( 0, 1000, 100 );
+            // spotLight.castShadow = true;
+
+            var whiteKeys = [];
+            var offset = 1;
+            for(var i = 0; i < 52; i++){
+            	whiteKeys.push(generateWhiteKey(-55 + offset, 0, 0));
+            	grandGroup.add(whiteKeys[i]);
+            	offset += 2.08;
+            }
+
+            grandGroup.add(generateBlackKey(-53, 1, -2)); // extra black key
+            var blackKeys = generateBlackKeySet();
+            grandGroup.add(blackKeys);
+
+            grandGroup.add(generateKeyFloor()); // the key floor
+            grandGroup.add(generateKeyBarriers(0)); // the key barrier to the left
+            grandGroup.add(generateKeyBarriers(1)); // the key barrier to the right
+            grandGroup.add(generateMusicSheet()); // the music sheet
+            grandGroup.add(generateLeg(-54.7, -15, -13)); // the left piano leg
+            grandGroup.add(generateLeg(52.7, -15, -13)); // the right piano leg
+            grandGroup.add(generateLeg(-35, -15, -85));
+            grandGroup.add(generateFootPeg()); // the foot peg
+            grandGroup.add(generatePianoTop()); //body top
+            grandGroup.add(generatePianoBottom()); // body bottom
+            grandGroup.add(generatePianoBody()); // piano body
+            grandGroup.add(generatePianoCover()); //piano cover
+            grandGroup.add(generateFloor()); //floor
+            grandGroup.add(generateStand());
+            grandGroup.position.set(1, 0, -2);
+
+            // the orbit controls and the first render of the scene
+            scene.add(grandGroup);
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+            renderer.render(scene, camera);
+            
+            // the instantiation of the animation (to enable the orbit controls)
+            var id;
+			var animate = function () {
+				id = requestAnimationFrame(animate);
+				renderer.render(scene, camera);
+				controls.update();
+			};
+
+			animate();
+            
+            var showcaseID;
+            var showcaseAnimate = function(){
+                showcaseID = requestAnimationFrame(showcaseAnimate);
+                grandGroup.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            }
+
+			function generateMusicSheet(){
+				var frontGeometry = new THREE.CubeGeometry(55 * 2.08, 18, 3);
+				var frontMaterial = new THREE.MeshPhongMaterial({color: 0x031634});
+				var frontMesh = new THREE.Mesh(frontGeometry, frontMaterial);
+				frontMesh.position.set(-1, 4.5, -6.6);
+
+				var sheetGeometry = new THREE.CubeGeometry(10, 13, 0.3);
+				var sheetMaterial = new THREE.MeshPhongMaterial({color: 0x999999});
+				var sheetMesh = new THREE.Mesh(sheetGeometry, sheetMaterial);
+				var sheetMesh2 = new THREE.Mesh(sheetGeometry, sheetMaterial);
+				sheetMesh.position.set(-6, 10, -4.5);
+				sheetMesh2.position.set(4.2, 10, -4.5);
+
+				var group = new THREE.Group();
+				group.add(frontMesh);
+				group.add(sheetMesh);
+				group.add(sheetMesh2);
+
+				return group;
+			}
+
+			function generateKeyBarriers(side){
+				var barrierGeometry = new THREE.CubeGeometry(3, 5, 11);
+				var barrierMaterial = new THREE.MeshPhongMaterial({color: 0x031634});
+				var barrierMesh = new THREE.Mesh(barrierGeometry, barrierMaterial);
+				barrierMesh.position.set(0, 4, -2);
+
+				var extraGeometry = new THREE.CylinderGeometry(barrierMesh.geometry.parameters.height / 2, barrierMesh.geometry.parameters.height / 2, barrierMesh.geometry.parameters.width, 32);
+				var extraMaterial = new THREE.MeshPhongMaterial({color: 0x031634});
+				var extraMesh = new THREE.Mesh(extraGeometry, extraMaterial);
+				extraMesh.rotation.z += 1.57;
+				extraMesh.position.set(barrierMesh.position.x, barrierMesh.position.y, barrierMesh.position.z + barrierMesh.geometry.parameters.depth / 2);
+
+				var upBarrierMesh = new THREE.Mesh(barrierGeometry, barrierMaterial);
+				upBarrierMesh.position.set(0, 4, -2);
+				var upExtraMesh = new THREE.Mesh(extraGeometry, extraMaterial);
+				upExtraMesh.rotation.z += 1.57;
+				upExtraMesh.position.set(barrierMesh.position.x, barrierMesh.position.y, barrierMesh.position.z + barrierMesh.geometry.parameters.depth / 2);
+
+				var upGroup = new THREE.Group();
+				upGroup.add(upBarrierMesh);
+				upGroup.add(upExtraMesh);
+				upGroup.rotation.x -= 1.57;
+				upGroup.position.y = 11.03;
+				upGroup.position.z = -1.6;
+
+				var sides = [-56.7, 54.7];
+				var barrierGroup = new THREE.Group();
+				barrierGroup.add(upGroup);
+				barrierGroup.add(barrierMesh);
+				barrierGroup.add(extraMesh);
+				barrierGroup.position.set(sides[side], -3.5, 0);
+				return barrierGroup;
+			}
+
+			function generateLeg(x, y, z){
+				var geometry = new THREE.CylinderGeometry(3, 1, 25, 32);
+				var material = new THREE.MeshPhongMaterial({color: 0x031634});
+				var mesh = new THREE.Mesh(geometry, material);
+				mesh.position.set(x, y, z);
+				return mesh;
+			}
+
+			function generateFootPeg(){
+				var verticalGeometry = new THREE.CubeGeometry(1, 17, 0.5);
+				var verticalMaterial = new THREE.MeshPhongMaterial({color: 0x031634});
+				var verticalMesh = new THREE.Mesh(verticalGeometry, verticalMaterial);
+				var verticalMesh2 = new THREE.Mesh(verticalGeometry, verticalMaterial);
+				verticalMesh.position.set(-2, -11, -2);
+				verticalMesh2.position.set(0, -11, -2);
+
+				var horizontalGeometry = new THREE.CubeGeometry(10, 2.5, 2);
+				var horizontalMaterial = new THREE.MeshPhongMaterial({color: 0x031634});
+				var horizontalMesh = new THREE.Mesh(horizontalGeometry, horizontalMaterial);
+				horizontalMesh.position.set(-1, verticalMesh.geometry.parameters.height * (-1) - 2, -2);
+
+				var mPegRectGeo = new THREE.CubeGeometry(1, 0.5, 5);
+				var mPegRectMat = new THREE.MeshPhongMaterial({color: 0xAE6624});
+				var mPegRectMesh = new THREE.Mesh(mPegRectGeo, mPegRectMat);
+				mPegRectMesh.position.set(-1, horizontalMesh.position.y, -1);
+				var mPegCylinGeo = new THREE.CylinderGeometry(1, 1, 0.5, 32);
+				var mPegCylinMat = new THREE.MeshPhongMaterial({color: 0xAE6624});
+				var mPegCylinMesh = new THREE.Mesh(mPegCylinGeo, mPegCylinMat);
+				mPegCylinMesh.position.set(-1, mPegRectMesh.position.y, 2);
+
+				var lPegRectMesh = new THREE.Mesh(mPegRectGeo, mPegRectMat);
+				lPegRectMesh.position.set(-4, horizontalMesh.position.y, -1);
+				var lPegCylinMesh = new THREE.Mesh(mPegCylinGeo, mPegCylinMat);
+				lPegCylinMesh.position.set(-4.4, mPegRectMesh.position.y, 1);
+
+				var rPegRectMesh = new THREE.Mesh(mPegRectGeo, mPegRectMat);
+				rPegRectMesh.position.set(2, horizontalMesh.position.y, -1);
+				var rPegCylinMesh = new THREE.Mesh(mPegCylinGeo, mPegCylinMat);
+				rPegCylinMesh.position.set(2.4, mPegRectMesh.position.y, 1);
+
+				var mPegGroup = new THREE.Group();
+				mPegGroup.add(mPegRectMesh);
+				mPegGroup.add(mPegCylinMesh);
+
+				var lPegGroup = new THREE.Group();
+				lPegGroup.add(lPegRectMesh);
+				lPegGroup.add(lPegCylinMesh);
+
+				var rPegGroup = new THREE.Group();
+				rPegGroup.add(rPegRectMesh);
+				rPegGroup.add(rPegCylinMesh);
+
+				var pegGroup = new THREE.Group();
+				pegGroup.add(verticalMesh);
+				pegGroup.add(verticalMesh2);
+				pegGroup.add(horizontalMesh);
+				pegGroup.add(mPegGroup);
+				pegGroup.add(lPegGroup);
+				pegGroup.add(rPegGroup);
+				pegGroup.position.set(0, -2, -15);
+
+				return pegGroup;
+			}
+
+			function generateKeyFloor(){
+				var floorGeometry = new THREE.CubeGeometry(55 * 2.08, 4, 10);
+				var floorMaterial = new THREE.MeshPhongMaterial({color: 0x031634});
+				var floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+				floorMesh.position.set(-1, -2.5, -1);
+				return floorMesh;
+			}
+
+			function generateWhiteKey(x, y, z){
+				var geometry = new THREE.CubeGeometry(2, 1.5, 9);
+				var material = new THREE.MeshPhongMaterial({color: 0xAAAAAA});
+				var mesh = new THREE.Mesh(geometry, material);
+				mesh.position.set(x, y, z);
+
+				var extraGeometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 32);
+				var extraMaterial = new THREE.MeshPhongMaterial({color: 0xAAAAAA});
+				var extraMesh = new THREE.Mesh(extraGeometry, extraMaterial);
+				extraMesh.rotation.z += 1.57;
+				extraMesh.position.set(x, y + 0.65, z + 4.5);
+
+				var pivot = new THREE.Group();
+				pivot.add(mesh);
+				pivot.add(extraMesh);
+
+				return pivot;
+			}
+
+			function generateBlackKey(x, y, z){
+				var geometry = new THREE.CubeGeometry(0.8, 0.5, 5);
+				var material = new THREE.MeshPhongMaterial({color: 0x333333});
+				var mesh = new THREE.Mesh(geometry, material);
+				mesh.position.set(x, y, z);
+				return mesh;
+			}
+
+			function generateBlackKeySet(){
+				var keys = new THREE.Group();
+
+				keys.add(generateBlackKey(-48.8, 1, -2));
+	            keys.add(generateBlackKey(-46.7, 1, -2));
+	            keys.add(generateBlackKey(-42.6, 1, -2));
+	            keys.add(generateBlackKey(-40.5, 1, -2));
+	            keys.add(generateBlackKey(-38.4, 1, -2));
+
+	            keys.add(generateBlackKey(-48.8 + 10.45 + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-46.7 + 10.45 + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-42.6 + 10.45 + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-40.5 + 10.45 + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-38.4 + 10.45 + 2.1 + 2, 1, -2));
+
+	            keys.add(generateBlackKey(-48.8 + 10.45 * 2.395 + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-46.7 + 10.45 * 2.395 + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-42.6 + 10.45 * 2.395 + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-40.5 + 10.45 * 2.395 + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-38.4 + 10.45 * 2.395 + 2.1 + 2, 1, -2));
+
+	            keys.add(generateBlackKey(-48.8 + 10.45 * (2.395 * 1.584) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-46.7 + 10.45 * (2.395 * 1.584) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-42.6 + 10.45 * (2.395 * 1.584) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-40.5 + 10.45 * (2.395 * 1.584) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-38.4 + 10.45 * (2.395 * 1.584) + 2.1 + 2, 1, -2));
+
+	            keys.add(generateBlackKey(-48.8 + 10.45 * 2.395 * (1.584 + 0.58) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-46.7 + 10.45 * 2.395 * (1.584 + 0.58) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-42.6 + 10.45 * 2.395 * (1.584 + 0.58) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-40.5 + 10.45 * 2.395 * (1.584 + 0.58) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-38.4 + 10.45 * 2.395 * (1.584 + 0.58) + 2.1 + 2, 1, -2));
+
+	            keys.add(generateBlackKey(-48.8 + 10.45 * 2.395 * (1.584 + 1.16) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-46.7 + 10.45 * 2.395 * (1.584 + 1.16) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-42.6 + 10.45 * 2.395 * (1.584 + 1.16) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-40.5 + 10.45 * 2.395 * (1.584 + 1.16) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-38.4 + 10.45 * 2.395 * (1.584 + 1.16) + 2.1 + 2, 1, -2));
+
+	            keys.add(generateBlackKey(-48.8 + 10.45 * 2.395 * (1.584 + 1.743) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-46.7 + 10.45 * 2.395 * (1.584 + 1.743) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-42.6 + 10.45 * 2.395 * (1.584 + 1.743) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-40.5 + 10.45 * 2.395 * (1.584 + 1.743) + 2.1 + 2, 1, -2));
+	            keys.add(generateBlackKey(-38.4 + 10.45 * 2.395 * (1.584 + 1.743) + 2.1 + 2, 1, -2));
+
+	            return keys;
+			}
+          
+            function generatePianoTop(){
+                
+                
+                //PIANO TOP
+                
+                /*var texture = new THREE.ImageUtils.loadTexture("blackmarble2.jpg");
+                
+                texture.wrapS = THREE.RepeatWrapping; 
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set( 4, 4 );*/
+                
+                var pianoTop = new THREE.Shape();
+
+                pianoTop.moveTo(0, 45);
+                pianoTop.bezierCurveTo( 50, 65, 30, 5, 75, 0);
+                pianoTop.bezierCurveTo( 80, 0, 95, -20, 90, -40);
+                pianoTop.lineTo(90, -40);
+                pianoTop.lineTo(-10, -40);
+                pianoTop.lineTo(-10, 30);
+                pianoTop.bezierCurveTo( -10, 30, -10, 40, 0, 45);
+
+
+                var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 10, steps: 2, bevelSize: 1, bevelThickness: 0 };
+
+                var geometry = new THREE.ExtrudeGeometry( pianoTop, extrudeSettings );
+
+                var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial({color: 0x031634}) );
+                
+                mesh.rotation.x -= 1.57;
+                mesh.position.y -= 5;
+                mesh.position.z -= 48;
+                mesh.position.x -= 45.6;
+                mesh.scale.set(1.12, 1, 1);
+                
+                
+                return mesh;
+
+            }
+            
+            function generatePianoBottom(){
+                
+                //PIANO BOTTOM
+                
+                /*var texture = new THREE.ImageUtils.loadTexture("blackmarble2.jpg");
+                
+                texture.wrapS = THREE.RepeatWrapping; 
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set( 4, 4 );*/
+                
+                var pianoBottom = new THREE.Shape();
+                
+                pianoBottom.moveTo(0, 45);
+                pianoBottom.bezierCurveTo( 50, 65, 30, 5, 75, 0);
+                pianoBottom.bezierCurveTo( 80, 0, 95, -20, 90, -40);
+                pianoBottom.lineTo(90, -40);
+                pianoBottom.lineTo(-10, -40);
+                pianoBottom.lineTo(-10, 30);
+                pianoBottom.bezierCurveTo( -10, 30, -10, 40, 0, 45);
+
+                var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 50, radiusSegmets: 100, steps: 2, bevelSize: 1, bevelThickness: 0 };
+
+                var geometry2 = new THREE.ExtrudeGeometry( pianoBottom, extrudeSettings);
+
+                var mesh2 = new THREE.Mesh( geometry2, new THREE.MeshPhongMaterial({color: 0x031634}) );
+
+                mesh2.position.y = 12.6;
+                mesh2.rotation.x -= 1.57;
+                mesh2.position.z -= 48;
+                mesh2.position.x -= 45.6;
+                mesh2.scale.set(1.12, 1, 1);
+                
+                
+                return mesh2;
+            }
+            
+            function generatePianoBody(){
+                
+                //PIANO BODY
+                
+                /*var texture = new THREE.ImageUtils.loadTexture("blackmarble2.jpg");
+                
+                texture.wrapS = THREE.RepeatWrapping; 
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set( 4, 4 );*/
+                
+                var pianoBody = new THREE.Shape();
+                
+                pianoBody.moveTo(0, 45);
+                pianoBody.bezierCurveTo( 50, 65, 30, 5, 75, 0);
+                pianoBody.bezierCurveTo( 80, 0, 95, -20, 90, -40);
+                pianoBody.lineTo(90, -40);
+                pianoBody.lineTo(-10, -40);
+                pianoBody.lineTo(-10, 30);
+                pianoBody.bezierCurveTo( -10, 30, -10, 40, 0, 45);
+
+                var extrudeSettings = { amount: 16.5, bevelEnabled: true, bevelSegments: 50, radiusSegmets: 100, steps: 2, bevelSize: 1, bevelThickness: 0 };
+
+                var geometry2 = new THREE.ExtrudeGeometry( pianoBody, extrudeSettings);
+
+                var mesh2 = new THREE.Mesh( geometry2, new THREE.MeshPhongMaterial({color: 0x031634}) );
+
+                mesh2.position.y = -4;
+                mesh2.rotation.x -= 1.57;
+                mesh2.position.z -= 48;
+                mesh2.position.x -= 45.6;
+                mesh2.scale.set(1.12, 1, 1);
+                
+                
+                return mesh2;
+            }
+            
+            function generatePianoCover(){
+                
+                //PIANO BOTTOM
+                
+                /*var texture = new THREE.ImageUtils.loadTexture("blackmarble2.jpg");
+                
+                texture.wrapS = THREE.RepeatWrapping; 
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set( 4, 4 );*/
+                
+                var pianoCover = new THREE.Shape();
+                
+                pianoCover.moveTo(0, 45);
+                pianoCover.bezierCurveTo( 50, 65, 30, 5, 75, 0);
+                pianoCover.bezierCurveTo( 80, 0, 95, -20, 90, -40);
+                pianoCover.lineTo(90, -40);
+                pianoCover.lineTo(-10, -40);
+                pianoCover.lineTo(-10, 30);
+                pianoCover.bezierCurveTo( -10, 30, -10, 40, 0, 45);
+
+                var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 50, radiusSegmets: 100, steps: 2, bevelSize: 1, bevelThickness: 0 };
+
+                var geometry2 = new THREE.ExtrudeGeometry( pianoCover, extrudeSettings);
+
+                var mesh2 = new THREE.Mesh( geometry2, new THREE.MeshPhongMaterial({color: 0x031634}) );
+
+                mesh2.position.y = 19;
+                mesh2.rotation.x -= 1.57;
+                mesh2.rotation.y -= .5;
+                mesh2.position.z -= 48;
+                mesh2.position.x -= 46.5;
+                mesh2.scale.set(1.12, 1, 1);
+                
+                
+                return mesh2;
+            }
+            
+            function generateFloor(){
+                
+                var texture = new THREE.ImageUtils.loadTexture("images/woodplane.jpg");
+                
+                texture.wrapS = THREE.RepeatWrapping; 
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set( 4, 4 ); 
+                
+                var geometry = new THREE.CylinderGeometry(100, 100, 5, 32);
+                var material = new THREE.MeshLambertMaterial( {map: texture} );
+                var floor = new THREE.Mesh( geometry, material );
+                floor.material.side = THREE.DoubleSide;
+                floor.rotation.x -= 1.57 * 2;
+                floor.position.z += -40;
+                floor.position.y -= 27.5;
+                
+                return floor;
+            }
+
+            function generateStand(){
+                var standGeo = new THREE.CylinderGeometry(0.5, 0.5, 55, 32);
+                var standMat = new THREE.MeshLambertMaterial({color: 0x031634});
+                var standMesh = new THREE.Mesh(standGeo, standMat);
+                standMesh.position.set(43, 38, -10 );
+                standMesh.rotation.z += .3;
+                
+                return standMesh;
+                
+            }
+            
+            var lightSwitch = false;
+            var showcase = false;
+            function interactionCheck(e){
+            	var pressedKey = window.event ? window.event : e;
+                if(pressedKey.keyCode == 13){
+                    lightSwitch = !lightSwitch;
+                    if(!lightSwitch){
+                        pointLight.intensity = 0.1;
+                    }
+                    
+                    else{
+                    	$('.note').css("animation", "none");
+		                setTimeout(function(){
+		                	$('.note').css("animation", "note-animation 1s");
+		                }, 0);
+                        pointLight.intensity = 1.5;
+                    }
+                }
+
+                else if(pressedKey.keyCode == 32){
+                	showcase = !showcase;
+                	if(showcase)
+                        showcaseAnimate();
+                    
+                    else cancelAnimationFrame(showcaseID);
+                }
+
+                else pianoCheck(pressedKey);
+                
+                renderer.render(scene, camera);
+            }
+
+            function pianoCheck(pianoKey) {
+            	var validKeys = ['q', '2', 'w', '3', 'e', 'r', '5', 't', '6', 'y', '7', 'u',
+                                'v', 'g', 'b', 'h', 'n', 'm', 'k', ',', 'l', '.', ';', '/'];
+                var isRightHand = false;
+              	for(var i = 0; i < validKeys.length; i++){
+                	if(String.fromCharCode(pianoKey.keyCode) === validKeys[i]){
+                        if(i > 11)
+                            isRightHand = true;
+                        chosenKeyIndex = i;
+                        break;
+                    }
+                }
+
+                var sound = document.getElementById('key' + chosenKeyIndex);
+                sound.pause();
+				sound.currentTime = 0;
+                sound.play();
+                
+                var musicnote = Math.floor((Math.random() * 8) + 1);
+                $('#note-' + musicnote).css("animation", "none");
+                setTimeout(function(){
+                	$('#note-' + musicnote).css("animation", "note-animation 1s");
+                }, 0);
+            }
+            
+		</script>
+	</body>
+</html>
